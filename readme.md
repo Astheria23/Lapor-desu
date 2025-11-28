@@ -2,7 +2,7 @@
 
 Lapor Desu (Lapor Digital Environment Spatial Utility) adalah aplikasi pelaporan masalah lingkungan/fasilitas kota berbasis peta interaktif. Pengguna (reporter) dapat membuat laporan dengan titik lokasi, kategori, deskripsi, dan foto bukti. Admin dapat memverifikasi, menyelesaikan, atau menolak laporan melalui dashboard khusus.
 
-## ✨ Fitur Utama
+## Fitur Utama
 
 - Pembuatan laporan geospasial (latitude / longitude) langsung via klik pada peta.
 - Upload foto bukti (tersimpan di Supabase Storage – opsional jika dikonfigurasi).
@@ -15,7 +15,20 @@ Lapor Desu (Lapor Digital Environment Spatial Utility) adalah aplikasi pelaporan
 - API terstruktur mengembalikan GeoJSON FeatureCollection untuk fleksibilitas spasial.
 - Single Docker image: Flask + Frontend statis (siap untuk Coolify).
 
-## 🧱 Teknologi
+## Dokumentasi
+
+Berikut beberapa tampilan antarmuka aplikasi:
+
+![Login Page](docs/Login-Page.jpeg)
+![Peta - Cluster Awal](docs/Polygon-Area-Zoom-out-lvl1.jpeg)
+![Peta - Cluster Lanjut](docs/Polygon-Area-Zoom-out-lvl2.jpeg)
+![Filter Kategori](docs/Filter-Categories.jpeg)
+![Form Buat Laporan](docs/Create-Laporan.jpeg)
+![Popup Laporan](docs/View-Laporan.jpeg.jpeg)
+![Admin Dashboard](docs/Admin-Page.jpeg)
+
+
+## Teknologi
 
 | Layer | Teknologi |
 |-------|-----------|
@@ -25,7 +38,7 @@ Lapor Desu (Lapor Digital Environment Spatial Utility) adalah aplikasi pelaporan
 | Frontend | HTML/CSS/JS (Vanilla), Axios, Leaflet, MarkerCluster |
 | Bundling | Docker (Gunicorn), Coolify-ready |
 
-## 🗂 Struktur Direktori Singkat
+## Struktur Direktori Singkat
 
 ```
 backend/
@@ -43,7 +56,7 @@ Dockerfile              # Image produksi (Flask + frontend static)
 readme.md
 ```
 
-## 🔐 Environment Variables
+## Environment Variables
 
 Letakkan di Coolify atau file `.env` (jangan commit ke repo publik):
 
@@ -57,7 +70,7 @@ Letakkan di Coolify atau file `.env` (jangan commit ke repo publik):
 
 Jika ketiga variabel Supabase tidak di-set, fitur upload gambar akan dinonaktifkan (backend akan mengembalikan error jika file dikirim). Laporan tetap bisa dibuat tanpa gambar.
 
-## 🚀 Menjalankan Secara Lokal
+## Menjalankan Secara Lokal
 
 ```bash
 # 1. Buat & aktifkan virtualenv (opsional)
@@ -74,7 +87,7 @@ python backend/app.py
 # Frontend dilayani langsung oleh Flask (index.html pada /)
 ```
 
-## 🌱 Seeder (Data Awal)
+## Seeder (Data Awal)
 
 Seeder akan:
 - Drop semua tabel
@@ -88,7 +101,7 @@ Jalankan:
 python backend/seed.py
 ```
 
-## 🐳 Deploy dengan Docker (Coolify Ready)
+## Deploy dengan Docker (Coolify Ready)
 
 Dockerfile telah disiapkan untuk menyajikan frontend + backend dalam satu container via Gunicorn.
 
@@ -113,7 +126,7 @@ docker run -p 8080:5000 \
 4. Deploy → Aplikasi akan berjalan di port internal 5000 (Coolify akan melakukan routing ke domain publik).
 5. Pastikan domain mengarah ke root (`/`) → index.html served, API di `/api/v1/*`.
 
-## 🔗 Endpoint API (Ringkas)
+## Endpoint API (Ringkas)
 
 Semua endpoint diprefiks `/api/v1`.
 
@@ -143,7 +156,7 @@ Contoh respons GET `/api/v1/reports` (dipotong):
 }
 ```
 
-## 📦 Arsitektur Sederhana
+## Arsitektur Sederhana
 
 ```
 [Leaflet Frontend] -- same origin --> [Flask API + Static]
@@ -151,21 +164,9 @@ Contoh respons GET `/api/v1/reports` (dipotong):
 															|--> (Optional) Supabase Storage untuk gambar
 ```
 
-## 🖼 Screenshot
 
-| Halaman | File | Deskripsi |
-|---------|------|-----------|
-| Login | `docs/Login-Page.jpeg` | Form login dengan autentikasi JWT. |
-| Dashboard (Default) | `docs/Polygon-Area-Zoom-out-lvl1.jpeg` | Tampilan peta dengan clustering laporan. |
-| Dashboard (Zoom Lanjut) | `docs/Polygon-Area-Zoom-out-lvl2.jpeg` | Area lebih luas menampilkan cluster gabungan. |
-| Filter Kategori | `docs/Filter-Categories.jpeg` | Checkbox filter kategori mempengaruhi marker. |
-| Buat Laporan | `docs/Create-Laporan.jpeg` | Modal pembuatan laporan + input lokasi dan foto. |
-| Popup Laporan | `docs/View-Laporan.jpeg.jpeg` | Popup marker dengan thumbnail + tombol detail. |
-| Admin Dashboard | `docs/Admin-Page.jpeg` | Statistik dan tabel manajemen laporan. |
 
-> Catatan: Nama file `View-Laporan.jpeg.jpeg` sengaja mengikuti file yang ada di folder. Bisa diganti menjadi `View-Laporan.jpeg` untuk kerapihan.
-
-## 🧪 Pengujian Manual Penting
+## Pengujian Manual Penting
 
 1. Register → Login → Pastikan token tersimpan di `localStorage` (`auth_token`).
 2. Buat laporan tanpa gambar → sukses.
@@ -173,14 +174,14 @@ Contoh respons GET `/api/v1/reports` (dipotong):
 4. Ubah status laporan via Admin → refleksi warna marker (re-load map).
 5. Cek GeoJSON: `curl /api/v1/reports`.
 
-## 🛡 Keamanan & Catatan
+## Keamanan & Catatan
 
 - Gunakan SECRET_KEY unik per environment.
 - Validasi mime upload gambar (kode sudah membatasi ke JPEG/PNG/WEBP/GIF).
 - Gunicorn + multiple worker sudah disiapkan (sesuaikan jumlah worker berdasarkan CPU).
 - Tambahkan reverse proxy (Coolify/Nginx) untuk TLS + gzip jika perlu.
 
-## 🧩 Pengembangan Lanjutan (Ide)
+## Pengembangan Lanjutan (Ide)
 
 - Endpoint statistik server-side (`/api/v1/reports/statistics`).
 - Role-based middleware untuk admin-only actions.
@@ -188,9 +189,9 @@ Contoh respons GET `/api/v1/reports` (dipotong):
 - Notifikasi (email / webhook) saat laporan diverifikasi.
 - Cache GeoJSON (Redis) untuk performa skala besar.
 
-## 📝 Lisensi
+## Lisensi
 
 Project ini dapat digunakan untuk kebutuhan pembelajaran / internal. Tambahkan lisensi eksplisit bila akan dipublikasikan lebih luas.
 
 ---
-Selamat membangun & semoga bermanfaat! 🙌
+Selamat membangun & semoga bermanfaat!
