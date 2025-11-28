@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Lapor Desu</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="navbar-content">
+                <div class="navbar-brand">
+                    <h1 class="logo">L</h1>
+                    <span class="brand-name">Lapor Desu - Admin</span>
+                </div>
+                <div class="navbar-actions">
+                    <div class="user-menu">
+                        <button id="user-btn" class="user-button">
+                            <span id="user-name">Admin</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div id="user-dropdown" class="dropdown-menu">
+                            <a href="dashboard.html">Public Dashboard</a>
+                            <button id="logout-btn">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Admin Content -->
+        <div class="admin-layout">
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #ef4444;"></div>
+                    <div class="stat-content">
+                        <p class="stat-label">Laporan Pending</p>
+                        <p class="stat-value" id="stat-pending">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #f59e0b;"></div>
+                    <div class="stat-content">
+                        <p class="stat-label">Sedang Diproses</p>
+                        <p class="stat-value" id="stat-in-progress">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #3b82f6;"></div>
+                    <div class="stat-content">
+                        <p class="stat-label">Terverifikasi</p>
+                        <p class="stat-value" id="stat-verified">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #10b981;"></div>
+                    <div class="stat-content">
+                        <p class="stat-label">Selesai</p>
+                        <p class="stat-value" id="stat-resolved">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Management -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>Kelola Laporan</h2>
+                    <div class="filter-controls">
+                        <select id="status-filter">
+                            <option value="">Semua Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="verified">Terverifikasi</option>
+                            <option value="in_progress">Sedang Diproses</option>
+                            <option value="resolved">Selesai</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="reports-list" class="reports-table-container">
+                    <!-- Reports will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/pages/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Lapor Desu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/MarkerCluster.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/MarkerCluster.Default.min.css" />
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="navbar-content">
+                <div class="navbar-brand">
+                    <h1 class="logo">L</h1>
+                    <span class="brand-name">Lapor Desu</span>
+                </div>
+                <div class="navbar-actions">
+                    <button id="report-btn" class="btn btn-primary">Lapor Masalah</button>
+                    <div class="user-menu">
+                        <button id="user-btn" class="user-button">
+                            <span id="user-name">User</span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div id="user-dropdown" class="dropdown-menu">
+                            <a href="admin.html">Admin Dashboard</a>
+                            <button id="logout-btn">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="dashboard-layout">
+            <!-- Map Container -->
+            <div class="map-container">
+                <div id="map" style="width: 100%; height: 100%;"></div>
+            </div>
+
+            <!-- Sidebar Filter -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Filter Laporan</h2>
+                </div>
+                <div class="sidebar-content">
+                    <div id="category-filter">
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Report Modal -->
+        <div id="report-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Buat Laporan Baru</h2>
+                    <button id="close-modal" class="close-btn">&times;</button>
+                </div>
+                <form id="report-form" class="report-form">
+                    <div class="form-group">
+                        <label for="report-title">Judul Laporan</label>
+                        <input type="text" id="report-title" required placeholder="Deskripsi singkat masalah">
+                    </div>
+                    <div class="form-group">
+                        <label for="report-category">Kategori</label>
+                        <select id="report-category" required>
+                            <option value="">Pilih Kategori</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="report-description">Deskripsi Lengkap</label>
+                        <textarea id="report-description" rows="4" required placeholder="Jelaskan masalah secara detail"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="report-location">Lokasi (Lat, Long)</label>
+                        <input type="text" id="report-location" readonly placeholder="Klik pada peta untuk memilih lokasi">
+                    </div>
+                    <div class="form-group">
+                        <label for="report-image">Foto Bukti</label>
+                        <input type="file" id="report-image" accept="image/*">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="cancel-btn" class="btn btn-secondary">Batal</button>
+                        <button type="submit" class="btn btn-primary">Submit Laporan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/leaflet.markercluster.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/map-manager.js"></script>
+    <script src="js/pages/dashboard.js"></script>
+</body>
+</html>

@@ -78,20 +78,18 @@ def get_categories():
 def create_report():
     data = request.get_json(silent=True) or {}
     try:
-        # Basic required fields validation
         required = ['title', 'latitude', 'longitude', 'category_id']
         missing = [k for k in required if k not in data or data[k] in (None, '')]
         if missing:
             return jsonify({"error": f"Field(s) missing: {', '.join(missing)}"}), 400
 
-        # Create instance then assign fields to avoid static analyzer false-positives
         new_report = Report()
         new_report.title = str(data['title']).strip()
         new_report.description = str(data.get('description', '')).strip()
         new_report.latitude = float(data['latitude'])
         new_report.longitude = float(data['longitude'])
         new_report.category_id = int(data['category_id'])
-        new_report.user_id = 1  # Hardcode user ID sementara
+        new_report.user_id = 1  
         new_report.image_url = (str(data.get('image_url', '')).strip() or None)
         new_report.status = 'pending'
         db.session.add(new_report)
