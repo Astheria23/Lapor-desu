@@ -75,18 +75,31 @@ class MapManager {
       fillOpacity: 0.8,
     })
 
-    marker.bindPopup(`
-            <div style="width: 200px;">
-                <h3 style="margin: 0 0 8px 0; font-weight: 700;">${report.title}</h3>
-                <p style="margin: 0 0 8px 0; font-size: 12px; color: #6b7280;">${report.description}</p>
-                <p style="margin: 0; font-size: 12px;">
-                    <strong>Status:</strong> 
-                    <span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">
-                        ${report.status.toUpperCase()}
-                    </span>
-                </p>
-            </div>
-        `)
+  const hasImage = report.image_url && typeof report.image_url === 'string' && report.image_url.trim() !== ''
+  const imageHtml = hasImage
+    ? `<div style="margin: 8px 0; text-align: center;">
+      <a href="${report.image_url}" target="_blank" rel="noopener noreferrer">
+        <img src="${report.image_url}" alt="Bukti laporan" style="max-width: 100%; max-height: 140px; border-radius: 6px; object-fit: cover;" onerror="this.style.display='none'" />
+      </a>
+     </div>`
+    : ''
+
+  marker.bindPopup(`
+      <div style="width: 220px;">
+        <h3 style="margin: 0 0 8px 0; font-weight: 700;">${report.title}</h3>
+        ${imageHtml}
+        <p style="margin: 0 0 8px 0; font-size: 12px; color: #6b7280;">${report.description || ''}</p>
+        <p style="margin: 0; font-size: 12px;">
+          <strong>Status:</strong>
+          <span style="background-color: ${color}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px;">
+            ${(report.status || '').toUpperCase()}
+          </span>
+        </p>
+        <div style="margin-top:8px; text-align:right;">
+          <button type="button" style="background:#111827; color:#fff; border:none; border-radius:4px; padding:4px 8px; cursor:pointer; font-size:12px;" onclick="window.openReportDetailById && window.openReportDetailById('${report.id}')">Lihat Detail</button>
+        </div>
+      </div>
+    `)
 
     this.markers.addLayer(marker)
   }

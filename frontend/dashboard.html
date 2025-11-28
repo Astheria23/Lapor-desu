@@ -91,6 +91,29 @@
                 </form>
             </div>
         </div>
+
+        <!-- Detail Modal -->
+        <div id="detail-modal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="detail-title">Detail Laporan</h2>
+                    <button id="close-detail" class="close-btn">&times;</button>
+                </div>
+                <div class="detail-body">
+                    <div id="detail-image-wrapper" style="margin: 8px 0; text-align:center;">
+                        <img id="detail-image" alt="Bukti laporan" style="max-width:100%; max-height:320px; border-radius:8px; object-fit:contain;" />
+                    </div>
+                    <div class="detail-meta" style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size: 14px;">
+                        <div><strong>Status:</strong> <span id="detail-status"></span></div>
+                        <div><strong>Kategori:</strong> <span id="detail-category"></span></div>
+                        <div><strong>Pelapor:</strong> <span id="detail-reporter"></span></div>
+                        <div><strong>Waktu:</strong> <span id="detail-created"></span></div>
+                        <div style="grid-column: 1 / -1;"><strong>Koordinat:</strong> <span id="detail-coordinates"></span></div>
+                    </div>
+                    <div class="detail-description" style="margin-top: 12px; font-size: 14px; color: #374151; white-space: pre-wrap;" id="detail-description"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>

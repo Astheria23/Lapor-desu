@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Setup UI
   setupNavigation()
   setupReportModal()
+  setupDetailModal()
   loadCategories()
   loadReports()
 })
@@ -62,6 +63,17 @@ function closeModal() {
   document.getElementById("report-modal").classList.add("hidden")
   mapManager.clearTemporaryMarker()
   document.getElementById("report-location").value = ""
+}
+
+function setupDetailModal() {
+  const modal = document.getElementById("detail-modal")
+  const closeBtn = document.getElementById("close-detail")
+
+  const close = () => modal.classList.add("hidden")
+  closeBtn.addEventListener("click", close)
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) close()
+  })
 }
 
 async function submitReport(e) {
@@ -143,10 +155,46 @@ function handleCategoryChange() {
 async function loadReports() {
   try {
     const reports = await window.apiClient.getReports(selectedCategories)
+    // Build an index for details modal access from popups
+    window.__reportsById = {}
+    reports.forEach((r) => (window.__reportsById[String(r.id)] = r))
+    // Expose global opener used by popup link
+    window.openReportDetailById = function (id) {
+      const r = window.__reportsById[String(id)]
+      if (r) openDetailModal(r)
+    }
     mapManager.loadReports(reports)
   } catch (error) {
     console.error("Failed to load reports:", error)
   }
+}
+
+function openDetailModal(report) {
+  const modal = document.getElementById("detail-modal")
+  // Title
+  document.getElementById("detail-title").textContent = report.title || "Detail Laporan"
+  // Image
+  const imgEl = document.getElementById("detail-image")
+  const imgWrap = document.getElementById("detail-image-wrapper")
+  if (report.image_url) {
+    imgEl.src = report.image_url
+    imgEl.style.display = ""
+    imgWrap.style.display = "block"
+  } else {
+    imgEl.removeAttribute("src")
+    imgEl.style.display = "none"
+    imgWrap.style.display = "none"
+  }
+  // Meta
+  document.getElementById("detail-status").textContent = (report.status || "").toUpperCase()
+  document.getElementById("detail-category").textContent = report.category_name || report.category_id || "-"
+  document.getElementById("detail-reporter").textContent = report.reporter_name || "-"
+  const created = report.created_at ? new Date(report.created_at) : null
+  document.getElementById("detail-created").textContent = created ? created.toLocaleString("id-ID") : "-"
+  document.getElementById("detail-coordinates").textContent = `${Number(report.latitude).toFixed(6)}, ${Number(report.longitude).toFixed(6)}`
+  document.getElementById("detail-description").textContent = report.description || ""
+
+  modal.classList.remove("hidden")
 }
 
 // Close dropdown when clicking outside
