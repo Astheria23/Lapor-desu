@@ -1,6 +1,5 @@
 // Ensure global instances from other scripts are used (defined in auth.js and api-client.js)
-// Do NOT redeclare them here to avoid shadowing/identifier errors.
-checkAuth()
+// Guest-friendly: do not enforce login on dashboard
 
 let mapManager
 let selectedCategories = []
@@ -23,22 +22,47 @@ function setupNavigation() {
   if (user) {
     userName.textContent = user.name || "User"
   }
+  else {
+    // Guest view: show Login and collapse dropdown
+    userName.textContent = "Login"
+    const userDropdownEl = document.getElementById("user-dropdown")
+    if (userDropdownEl) userDropdownEl.style.display = "none"
+  }
 
   const userBtn = document.getElementById("user-btn")
   const userDropdown = document.getElementById("user-dropdown")
 
   userBtn.addEventListener("click", () => {
+    const isLoggedIn = window.checkAuth ? window.checkAuth() : false
+    if (!isLoggedIn) {
+      // As guest, clicking user opens login page
+      window.location.href = "login.html"
+      return
+    }
     userDropdown.classList.toggle("show")
   })
 
-  document.getElementById("logout-btn").addEventListener("click", () => {
-    window.authManager?.logout?.()
-    window.location.href = "login.html"
-  })
+  const logoutBtn = document.getElementById("logout-btn")
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      window.authManager?.logout?.()
+      window.location.href = "login.html"
+    })
+  }
 
-  document.getElementById("report-btn").addEventListener("click", () => {
-    document.getElementById("report-modal").classList.remove("hidden")
-  })
+  const reportBtn = document.getElementById("report-btn")
+  if (reportBtn) {
+    if (window.checkAuth && !window.checkAuth()) {
+      // Hide create UI for guests
+      reportBtn.style.display = "none"
+      const createHint = document.getElementById("create-hint")
+      if (createHint) createHint.style.display = "block"
+    } else {
+      reportBtn.addEventListener("click", () => {
+        document.getElementById("report-modal").classList.remove("hidden")
+      })
+    }
+  }
 }
 
 function setupReportModal() {

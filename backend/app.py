@@ -118,6 +118,32 @@ def create_token(user_id: int) -> str:
     return token if isinstance(token, str) else token.decode('utf-8')
 
 
+def get_current_user():
+    """Extract and validate JWT from Authorization header. Returns User or None."""
+    auth = request.headers.get('Authorization', '')
+    parts = auth.split()
+    if len(parts) == 2 and parts[0].lower() == 'bearer':
+        token = parts[1]
+        try:
+            payload = jwt.decode(token, app.config.get('SECRET_KEY', 'default_secret'), algorithms=['HS256'])
+            user_id = payload.get('sub')
+            if user_id:
+                return User.query.get(int(user_id))
+        except Exception:
+            return None
+    return None
+
+
+def require_auth(role: str | None = None):
+    """Simple auth guard: ensures a logged-in user; optional role check."""
+    user = get_current_user()
+    if not user:
+        return None, (jsonify({"error": "Unauthorized"}), 401)
+    if role and getattr(user, 'role', None) != role:
+        return None, (jsonify({"error": "Forbidden"}), 403)
+    return user, None
+
+
 @app.route('/api/v1/auth/register', methods=['POST'])
 def register():
     data = request.get_json(silent=True) or {}
@@ -222,6 +248,10 @@ def get_categories():
 
 @app.route('/api/v1/reports', methods=['POST'])
 def create_report():
+    # Require any authenticated user (e.g., reporter) to create
+    user, err = require_auth()
+    if err:
+        return err
     is_multipart = (request.content_type or '').startswith('multipart/form-data')
     data = ({k: request.form.get(k) for k in request.form} if is_multipart else (request.get_json(silent=True) or {}))
     try:
@@ -236,7 +266,7 @@ def create_report():
         new_report.latitude = float(str(data.get('latitude')))
         new_report.longitude = float(str(data.get('longitude')))
         new_report.category_id = int(str(data.get('category_id')))
-        new_report.user_id = 1
+        new_report.user_id = int(getattr(user, 'id', 1))
         new_report.status = 'pending'
 
         image_url = None
@@ -267,6 +297,10 @@ def get_report_detail(id):
 
 @app.route('/api/v1/reports/<int:id>', methods=['PATCH'])
 def update_report(id):
+    # Only admin can update status or content
+    user, err = require_auth(role='admin')
+    if err:
+        return err
     report = Report.query.get_or_404(id)
     is_multipart = (request.content_type or '').startswith('multipart/form-data')
     data = ({k: request.form.get(k) for k in request.form} if is_multipart else (request.get_json(silent=True) or {}))
@@ -307,6 +341,10 @@ def update_report(id):
 
 @app.route('/api/v1/reports/<int:id>', methods=['DELETE'])
 def delete_report(id):
+    # Only admin can delete
+    user, err = require_auth(role='admin')
+    if err:
+        return err
     report = Report.query.get_or_404(id)
     
     try:

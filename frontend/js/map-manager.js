@@ -11,8 +11,9 @@ class MapManager {
   }
 
   initMap() {
-    // Initialize Leaflet Map
-    this.map = L.map(this.mapId).setView([-6.2088, 106.8456], 13)
+  // Initialize Leaflet Map (Bandung default)
+  // Referensi koordinat dari seeder (sekitar Gedung Sate)
+  this.map = L.map(this.mapId).setView([-6.902481, 107.61881], 13)
 
     // Add OpenStreetMap tiles
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {

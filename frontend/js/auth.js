@@ -52,7 +52,13 @@ class AuthManager {
 window.authManager = new AuthManager()
 
 // Auth Protection
+// Soft check: return boolean without redirect (useful for guest-visible pages)
 function checkAuth() {
+  return authManager.isLoggedIn()
+}
+
+// Hard enforcement: redirect to login when not authenticated
+function enforceAuth() {
   if (!authManager.isLoggedIn()) {
     window.location.href = "login.html"
     return false
@@ -70,4 +76,5 @@ function checkAdminAuth() {
 
 // Also attach helpers for explicit access if needed
 window.checkAuth = checkAuth
+window.enforceAuth = enforceAuth
 window.checkAdminAuth = checkAdminAuth
