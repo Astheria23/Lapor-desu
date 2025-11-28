@@ -24,7 +24,7 @@ Berikut beberapa tampilan antarmuka aplikasi:
 ![Peta - Cluster Lanjut](docs/Polygon-Area-Zoom-out-lvl2.jpeg)
 ![Filter Kategori](docs/Filter-Categories.jpeg)
 ![Form Buat Laporan](docs/Create-Laporan.jpeg)
-![Popup Laporan](docs/View-Laporan.jpeg.jpeg)
+![Popup Laporan](docs/View-Laporan.jpeg)
 ![Admin Dashboard](docs/Admin-Page.jpeg)
 
 
