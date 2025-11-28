@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from flask import Flask, jsonify, request
 from datetime import datetime
 from flask_cors import CORS
@@ -12,8 +13,11 @@ import jwt
 
 load_dotenv()
 
-app = Flask(__name__)
-CORS(app) 
+BASE_DIR = Path(__file__).resolve().parent
+FRONTEND_DIR = BASE_DIR.parent / "frontend"
+
+app = Flask(__name__, static_folder=str(FRONTEND_DIR), static_url_path="")
+CORS(app)
 
 supabase_url = os.environ.get("SUPABASE_URL")
 supabase_key = os.environ.get("SUPABASE_KEY")
@@ -165,7 +169,15 @@ def login():
         return jsonify({"error": str(e)}), 400
 
 @app.route('/')
-def index():
+def serve_index():
+    # Serve the frontend index.html
+    try:
+        return app.send_static_file('index.html')
+    except Exception:
+        return jsonify({"message": "Frontend not found", "hint": "Ensure /frontend exists and is copied in deployment"}), 404
+
+@app.route('/api')
+def api_root():
     return jsonify({
         "message": "Welcome to Lapor Desu API 🚧",
         "status": "Running",

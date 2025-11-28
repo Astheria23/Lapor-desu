@@ -1,7 +1,8 @@
 // Configuration
 const CONFIG = {
-  // Default to versioned API base; can override via localStorage.setItem('api_url', '<your-url>')
-  API_BASE_URL: localStorage.getItem("api_url") || "http://localhost:5000/api/v1",
+  // Default to relative versioned API base for same-origin deployments (e.g., behind Coolify/Nginx)
+  // You can still override with localStorage.setItem('api_url', 'https://your-domain/api/v1') if needed
+  API_BASE_URL: localStorage.getItem("api_url") || "/api/v1",
   MOCK_MODE: !localStorage.getItem("api_url"),
 }
 
