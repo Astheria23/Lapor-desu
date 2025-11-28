@@ -2,6 +2,10 @@
 
 Lapor Desu (Lapor Digital Environment Spatial Utility) adalah aplikasi pelaporan masalah lingkungan/fasilitas kota berbasis peta interaktif. Pengguna (reporter) dapat membuat laporan dengan titik lokasi, kategori, deskripsi, dan foto bukti. Admin dapat memverifikasi, menyelesaikan, atau menolak laporan melalui dashboard khusus.
 
+##Credentials for web trials
+Email : ujang@warga.com
+Pass  : password123
+
 ## Fitur Utama
 
 - Pembuatan laporan geospasial (latitude / longitude) langsung via klik pada peta.
