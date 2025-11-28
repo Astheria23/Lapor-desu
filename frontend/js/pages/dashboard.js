@@ -1,8 +1,5 @@
-// Declare necessary variables before using them
-let authManager
-let apiClient
-let MapManager
-
+// Ensure global instances from other scripts are used (defined in auth.js and api-client.js)
+// Do NOT redeclare them here to avoid shadowing/identifier errors.
 checkAuth()
 
 let mapManager
@@ -21,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function setupNavigation() {
   const userName = document.getElementById("user-name")
-  const user = authManager.getCurrentUser()
+  const user = window.authManager?.getCurrentUser?.() || null
   if (user) {
     userName.textContent = user.name || "User"
   }
@@ -34,7 +31,7 @@ function setupNavigation() {
   })
 
   document.getElementById("logout-btn").addEventListener("click", () => {
-    authManager.logout()
+    window.authManager?.logout?.()
     window.location.href = "login.html"
   })
 
@@ -83,7 +80,8 @@ async function submitReport(e) {
   try {
     const formData = new FormData()
     formData.append("title", title)
-    formData.append("category", category)
+  // Backend expects category_id
+  formData.append("category_id", category)
     formData.append("description", description)
     formData.append("latitude", mapManager.selectedLocation.lat)
     formData.append("longitude", mapManager.selectedLocation.lng)
@@ -91,7 +89,7 @@ async function submitReport(e) {
       formData.append("image", image)
     }
 
-    await apiClient.createReport(formData)
+    await window.apiClient.createReport(formData)
 
     alert("Laporan berhasil dikirim!")
     closeModal()
@@ -105,7 +103,7 @@ async function submitReport(e) {
 
 async function loadCategories() {
   try {
-    const categories = await apiClient.getCategories()
+    const categories = await window.apiClient.getCategories()
 
     const categoryFilter = document.getElementById("category-filter")
     categoryFilter.innerHTML = ""
@@ -144,7 +142,7 @@ function handleCategoryChange() {
 
 async function loadReports() {
   try {
-    const reports = await apiClient.getReports(selectedCategories)
+    const reports = await window.apiClient.getReports(selectedCategories)
     mapManager.loadReports(reports)
   } catch (error) {
     console.error("Failed to load reports:", error)

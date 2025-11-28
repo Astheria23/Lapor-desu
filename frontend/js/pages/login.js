@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form")
-  const authManager = {} // Declare the authManager variable here or import it properly
+  const authManager = window.authManager
 
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault()

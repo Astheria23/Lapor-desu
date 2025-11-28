@@ -3,10 +3,12 @@ from flask import Flask, jsonify, request
 from datetime import datetime
 from flask_cors import CORS
 from dotenv import load_dotenv
-from models import db, Category, Report
+from models import db, Category, Report, User
 from werkzeug.utils import secure_filename
 from supabase import create_client, Client 
 from uuid import uuid4
+from werkzeug.security import generate_password_hash, check_password_hash
+import jwt
 
 load_dotenv()
 
@@ -101,6 +103,67 @@ def upload_image_to_supabase(file_storage) -> str:
 
     return public_url
 
+
+# ---------- Auth helpers ----------
+def create_token(user_id: int) -> str:
+    """Create a simple JWT using SECRET_KEY. Encodes user_id and issued-at."""
+    payload = {"sub": user_id, "iat": int(datetime.utcnow().timestamp())}
+    secret = app.config.get('SECRET_KEY', 'default_secret')
+    token = jwt.encode(payload, secret, algorithm='HS256')
+    # PyJWT may return bytes on old versions; normalize to str
+    return token if isinstance(token, str) else token.decode('utf-8')
+
+
+@app.route('/api/v1/auth/register', methods=['POST'])
+def register():
+    data = request.get_json(silent=True) or {}
+    try:
+        name = (data.get('name') or '').strip()
+        email = (data.get('email') or '').strip().lower()
+        password = data.get('password') or ''
+        if not name or not email or not password:
+            return jsonify({"error": "name, email, password wajib"}), 400
+
+        if User.query.filter_by(email=email).first():
+            return jsonify({"error": "Email sudah terdaftar"}), 400
+
+        pw_hash = generate_password_hash(password)
+        user = User()
+        user.name = name
+        user.email = email
+        user.password = pw_hash
+        user.role = 'reporter'
+        db.session.add(user)
+        db.session.commit()
+
+        token = create_token(user.id)
+        return jsonify({"message": "Registrasi berhasil", "token": token, "user": user.to_dict()}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route('/api/v1/auth/login', methods=['POST'])
+def login():
+    data = request.get_json(silent=True) or {}
+    try:
+        email = (data.get('email') or '').strip().lower()
+        password = data.get('password') or ''
+        if not email or not password:
+            return jsonify({"error": "email dan password wajib"}), 400
+
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            return jsonify({"error": "User tidak ditemukan"}), 404
+
+        if not check_password_hash(user.password, password):
+            return jsonify({"error": "Password salah"}), 401
+
+        token = create_token(user.id)
+        return jsonify({"message": "Login sukses", "token": token, "user": user.to_dict()})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 @app.route('/')
 def index():
     return jsonify({
@@ -109,7 +172,7 @@ def index():
         "database": "Neon PostgreSQL"
     })
 
-@app.route('/api/test-db')
+@app.route('/api/v1/test-db')
 def test_db():
     try:
         report_count = Report.query.count()
@@ -120,7 +183,7 @@ def test_db():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/reports', methods=['GET'])
+@app.route('/api/v1/reports', methods=['GET'])
 def get_reports():
     reports = Report.query.all()
     
@@ -140,12 +203,12 @@ def get_reports():
         "features": features
     })
 
-@app.route('/api/categories', methods=['GET'])
+@app.route('/api/v1/categories', methods=['GET'])
 def get_categories():
     categories = Category.query.all()
     return jsonify([c.to_dict() for c in categories])
 
-@app.route('/api/reports', methods=['POST'])
+@app.route('/api/v1/reports', methods=['POST'])
 def create_report():
     is_multipart = (request.content_type or '').startswith('multipart/form-data')
     data = ({k: request.form.get(k) for k in request.form} if is_multipart else (request.get_json(silent=True) or {}))
@@ -176,13 +239,13 @@ def create_report():
 
         db.session.add(new_report)
         db.session.commit()
-        return jsonify({"message": "Laporan diterima desu!", "data": new_report.to_dict()}), 201
+        return jsonify({"message": "Report successfully created!", "data": new_report.to_dict()}), 201
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
 
 
-@app.route('/api/reports/<int:id>', methods=['GET'])
+@app.route('/api/v1/reports/<int:id>', methods=['GET'])
 def get_report_detail(id):
 
     report = Report.query.get_or_404(id)
@@ -190,14 +253,13 @@ def get_report_detail(id):
     return jsonify(report.to_dict())
 
 
-@app.route('/api/reports/<int:id>', methods=['PATCH'])
+@app.route('/api/v1/reports/<int:id>', methods=['PATCH'])
 def update_report(id):
     report = Report.query.get_or_404(id)
     is_multipart = (request.content_type or '').startswith('multipart/form-data')
     data = ({k: request.form.get(k) for k in request.form} if is_multipart else (request.get_json(silent=True) or {}))
 
     try:
-        # Optional file replacement
         if is_multipart:
             file = request.files.get('image')
             if file and getattr(file, 'filename', ''):
@@ -223,7 +285,7 @@ def update_report(id):
 
         db.session.commit()
         return jsonify({
-            "message": "Data berhasil diupdate desu!",
+            "message": "Data successfully updated",
             "data": report.to_dict()
         })
     except Exception as e:
@@ -231,14 +293,14 @@ def update_report(id):
         return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/reports/<int:id>', methods=['DELETE'])
+@app.route('/api/v1/reports/<int:id>', methods=['DELETE'])
 def delete_report(id):
     report = Report.query.get_or_404(id)
     
     try:
         db.session.delete(report)
         db.session.commit()
-        return jsonify({"message": "Laporan berhasil dihapus selamanya!"})
+        return jsonify({"message": "report successfully deleted"})
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500

@@ -10,14 +10,14 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div id="app"></div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.1/leaflet.markercluster.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/api-client.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/app.js"></script>
+        <div class="redirect">
+                <p>Redirecting to dashboard…</p>
+                <p><a href="dashboard.html">Klik di sini jika tidak otomatis.</a></p>
+        </div>
+
+        <script>
+            // Redirect to main dashboard page; keeps a single source of truth for UI
+            window.location.replace('dashboard.html');
+        </script>
 </body>
 </html>

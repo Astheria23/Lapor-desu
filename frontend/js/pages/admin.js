@@ -1,55 +1,4 @@
-// Declare variables before using them
-const checkAdminAuth = () => {
-  // Implementation of checkAdminAuth
-  console.log("Checking admin authentication...")
-}
-
-const authManager = {
-  getCurrentUser: () => {
-    // Implementation of getCurrentUser
-    return { name: "John Doe" }
-  },
-  logout: () => {
-    // Implementation of logout
-    console.log("Logging out...")
-  },
-}
-
-const apiClient = {
-  getStatistics: async () => {
-    // Implementation of getStatistics
-    return { pending: 10, in_progress: 5, verified: 8, resolved: 3 }
-  },
-  getReports: async () => {
-    // Implementation of getReports
-    return [
-      {
-        id: 1,
-        title: "Report 1",
-        category: "Category 1",
-        status: "pending",
-        latitude: -6.2088,
-        longitude: 106.8456,
-        created_at: new Date(),
-      },
-      {
-        id: 2,
-        title: "Report 2",
-        category: "Category 2",
-        status: "verified",
-        latitude: -6.2144,
-        longitude: 106.8456,
-        created_at: new Date(),
-      },
-      // More reports here
-    ]
-  },
-  updateReportStatus: async (reportId, status) => {
-    // Implementation of updateReportStatus
-    console.log(`Updating report ${reportId} status to ${status}`)
-  },
-}
-
+// Use globals provided by non-module scripts
 checkAdminAuth()
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -62,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function setupNavigation() {
   const userName = document.getElementById("user-name")
-  const user = authManager.getCurrentUser()
+  const user = window.authManager.getCurrentUser()
   if (user) {
     userName.textContent = user.name || "Admin"
   }
@@ -75,7 +24,7 @@ function setupNavigation() {
   })
 
   document.getElementById("logout-btn").addEventListener("click", () => {
-    authManager.logout()
+    window.authManager.logout()
     window.location.href = "login.html"
   })
 }
@@ -86,11 +35,22 @@ function setupFilters() {
 
 async function loadStatistics() {
   try {
-    const stats = await apiClient.getStatistics()
-    document.getElementById("stat-pending").textContent = stats.pending || 0
-    document.getElementById("stat-in-progress").textContent = stats.in_progress || 0
-    document.getElementById("stat-verified").textContent = stats.verified || 0
-    document.getElementById("stat-resolved").textContent = stats.resolved || 0
+    // Compute stats client-side from reports since backend has no statistics endpoint
+    const reports = await window.apiClient.getReports([])
+    const counts = {
+      pending: 0,
+      verified: 0,
+      resolved: 0,
+      rejected: 0,
+    }
+    reports.forEach((r) => {
+      const s = r.status
+      if (s && counts.hasOwnProperty(s)) counts[s]++
+    })
+    document.getElementById("stat-pending").textContent = counts.pending
+    // in-progress is not used in backend; omit
+    document.getElementById("stat-verified").textContent = counts.verified
+    document.getElementById("stat-resolved").textContent = counts.resolved
   } catch (error) {
     console.error("Failed to load statistics:", error)
   }
@@ -98,7 +58,7 @@ async function loadStatistics() {
 
 async function loadReports() {
   try {
-    const reports = await apiClient.getReports()
+    const reports = await window.apiClient.getReports()
     const statusFilter = document.getElementById("status-filter").value
 
     let filteredReports = reports
@@ -127,17 +87,17 @@ async function loadReports() {
         `
 
     const tbody = table.querySelector("tbody")
-    filteredReports.forEach((report) => {
+  filteredReports.forEach((report) => {
       const tr = document.createElement("tr")
       tr.innerHTML = `
                 <td>${report.title}</td>
-                <td>${report.category}</td>
+        <td>${report.category_id || ''}</td>
                 <td>
-                    <select class="status-select" onchange="updateStatus('${report.id}', this.value)">
+          <select class="status-select" onchange="updateStatus('${report.id}', this.value)">
                         <option value="pending" ${report.status === "pending" ? "selected" : ""}>Pending</option>
                         <option value="verified" ${report.status === "verified" ? "selected" : ""}>Terverifikasi</option>
-                        <option value="in_progress" ${report.status === "in_progress" ? "selected" : ""}>Sedang Diproses</option>
                         <option value="resolved" ${report.status === "resolved" ? "selected" : ""}>Selesai</option>
+            <option value="rejected" ${report.status === "rejected" ? "selected" : ""}>Ditolak</option>
                     </select>
                 </td>
                 <td>${report.latitude.toFixed(4)}, ${report.longitude.toFixed(4)}</td>
@@ -159,7 +119,7 @@ async function loadReports() {
 
 async function updateStatus(reportId, status) {
   try {
-    await apiClient.updateReportStatus(reportId, status)
+    await window.apiClient.updateReportStatus(reportId, status)
     loadStatistics()
     loadReports()
   } catch (error) {

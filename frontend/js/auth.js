@@ -28,11 +28,10 @@ class AuthManager {
     return data
   }
 
-  async register(name, email, phone, password) {
+  async register(name, email, password) {
     const data = await window.apiClient.register({
       name,
       email,
-      phone,
       password,
     })
     return data
@@ -49,7 +48,8 @@ class AuthManager {
   }
 }
 
-const authManager = new AuthManager()
+// Expose as a global for non-module scripts
+window.authManager = new AuthManager()
 
 // Auth Protection
 function checkAuth() {
@@ -67,3 +67,7 @@ function checkAdminAuth() {
   }
   return true
 }
+
+// Also attach helpers for explicit access if needed
+window.checkAuth = checkAuth
+window.checkAdminAuth = checkAdminAuth

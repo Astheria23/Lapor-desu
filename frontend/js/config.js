@@ -1,6 +1,7 @@
 // Configuration
 const CONFIG = {
-  API_BASE_URL: localStorage.getItem("api_url") || "http://localhost:5000/api",
+  // Default to versioned API base; can override via localStorage.setItem('api_url', '<your-url>')
+  API_BASE_URL: localStorage.getItem("api_url") || "http://localhost:5000/api/v1",
   MOCK_MODE: !localStorage.getItem("api_url"),
 }
 

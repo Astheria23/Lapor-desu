@@ -61,6 +61,7 @@ class MapManager {
       verified: "#3b82f6", // Blue
       in_progress: "#f59e0b", // Orange
       resolved: "#10b981", // Green
+      rejected: "#7f1d1d", // Dark Red
     }
 
     const color = statusColors[report.status] || "#6b7280"

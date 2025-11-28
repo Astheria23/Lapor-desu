@@ -1,8 +1,4 @@
-// API Client with Axios
-import axios from "axios"
-import CONFIG from "./config" // Assuming CONFIG is imported from a config file
-import MOCK_REPORTS from "./mock-reports" // Assuming MOCK_REPORTS is imported from a mock-reports file
-import MOCK_CATEGORIES from "./mock-categories" // Assuming MOCK_CATEGORIES is imported from a mock-categories file
+// API Client using global axios and CONFIG loaded via script tags
 
 class APIClient {
   constructor(baseURL) {
@@ -50,7 +46,12 @@ class APIClient {
 
   async register(data) {
     try {
-      const response = await axios.post(`${this.baseURL}/auth/register`, data)
+      const payload = {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      }
+      const response = await axios.post(`${this.baseURL}/auth/register`, payload)
       return response.data
     } catch (error) {
       throw error.response?.data || error
@@ -65,9 +66,28 @@ class APIClient {
         headers: this.getHeaders(),
         params,
       })
-      return response.data
+      const data = response.data
+      // Transform GeoJSON FeatureCollection -> array of report objects
+      if (data && data.type === "FeatureCollection" && Array.isArray(data.features)) {
+        let reports = data.features.map((f) => {
+          const p = f.properties || {}
+          const coords = (f.geometry && f.geometry.coordinates) || [0, 0]
+          return {
+            ...p,
+            latitude: coords[1],
+            longitude: coords[0],
+          }
+        })
+        // Client-side filter by category_id if categories provided
+        if (categories && categories.length > 0) {
+          const catIds = categories.map((c) => parseInt(c, 10)).filter((n) => !isNaN(n))
+          reports = reports.filter((r) => !catIds.length || catIds.includes(r.category_id))
+        }
+        return reports
+      }
+      return data
     } catch (error) {
-      if (CONFIG.MOCK_MODE) {
+      if (CONFIG && CONFIG.MOCK_MODE && typeof MOCK_REPORTS !== "undefined") {
         const filtered =
           categories.length > 0 ? MOCK_REPORTS.filter((r) => categories.includes(r.category)) : MOCK_REPORTS
         return filtered
@@ -92,8 +112,9 @@ class APIClient {
 
   async updateReportStatus(reportId, status) {
     try {
+      // Backend expects PATCH /reports/:id with body { status }
       const response = await axios.patch(
-        `${this.baseURL}/reports/${reportId}/status`,
+        `${this.baseURL}/reports/${reportId}`,
         { status },
         { headers: this.getHeaders() },
       )
@@ -111,7 +132,7 @@ class APIClient {
       })
       return response.data
     } catch (error) {
-      if (CONFIG.MOCK_MODE) {
+      if (CONFIG && CONFIG.MOCK_MODE && typeof MOCK_CATEGORIES !== "undefined") {
         return MOCK_CATEGORIES
       }
       throw error
@@ -140,4 +161,4 @@ class APIClient {
 }
 
 // Initialize API Client
-const apiClient = new APIClient(CONFIG.API_BASE_URL)
+window.apiClient = new APIClient(CONFIG.API_BASE_URL)
